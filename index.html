@@ -108,7 +108,6 @@
         text += `${item.action} ${nb} ${item.description} (${formatDuration(item.hours)})\n`;
       });
 
-      // Puis le reste en liste simple
       data.slice(4).forEach(item => {
         const nb = Math.floor(hoursPerYear / item.hours * item.count);
         text += `${item.action} ${nb} ${item.description} (${formatDuration(item.hours)})\n`;
