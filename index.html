@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ce que mon téléphone me dérobe</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.5;
+      color: #222;
+      background-color: #fefefe;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: #2c3e50;
+    }
+    label, input, button {
+      font-size: 1.1rem;
+    }
+    input[type="time"] {
+      width: 120px;
+      padding: 0.3rem;
+      margin-left: 0.5rem;
+    }
+    button {
+      margin-left: 1rem;
+      padding: 0.4rem 0.8rem;
+      cursor: pointer;
+      background-color: #2980b9;
+      border: none;
+      color: white;
+      border-radius: 4px;
+    }
+    .result {
+      margin-top: 2rem;
+      background: #ecf0f1;
+      padding: 1rem;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      text-align: left;
+      padding: 6px 8px;
+      border-bottom: 1px solid #ccc;
+    }
+    th {
+      background-color: #3498db;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>Ce que mon téléphone me dérobe</h1>
+
+  <form id="form">
+    <label for="timeInput">Encodez la durée moyenne de temps passé sur votre téléphone par jour (H:MM) :</label>
+    <input type="time" id="timeInput" name="timeInput" step="60" value="01:00" required>
+    <button type="submit">Calculer</button>
+  </form>
+
+  <div id="output" class="result" aria-live="polite"></div>
+
+  <script>
+    const form = document.getElementById('form');
+    const output = document.getElementById('output');
+
+    // Données fixes issues de ton tableau
+    const data = [
+      { action: 'lire', count: 30, description: 'petits livres', hours: 12 },
+      { action: 'lire', count: 12, description: 'gros romans', hours: 30 },
+      { action: 'regarder', count: 166, description: 'films', hours: 2.33 },
+      { action: 'faire', count: 91, description: 'longues promenades en forêt', hours: 4 },
+      { action: 'faire', count: 456, description: 'séances de sport de 30 minutes, douche comprise', hours: 0.8 },
+      { action: 'visiter', count: 122, description: 'musées', hours: 3 },
+      { action: 'écrire', count: 1, description: 'livres', hours: 400 },
+      { action: 'dessiner intégralement', count: 1, description: 'BD', hours: 500 },
+      { action: 'écrire le scénario de', count: 4, description: 'courts métrages', hours: 100 },
+      { action: 'écrire le scénario de', count: 1, description: 'longs métrages', hours: 500 },
+      { action: 'apprendre à jouer basiquement à', count: 2, description: 'instruments de musique', hours: 200 },
+      { action: 'pouvoir comprendre les dialogues dans', count: 1, description: 'langues étrangères', hours: 250 },
+      { action: 'étudier pour l\'équivalent de', count: 15, description: 'crédits (ECTS)', hours: 25 },
+    ];
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      // Récupérer le temps en heures et minutes
+      const timeStr = document.getElementById('timeInput').value; // format HH:MM
+      const [hoursStr, minutesStr] = timeStr.split(':');
+      const hours = parseInt(hoursStr, 10);
+      const minutes = parseInt(minutesStr, 10);
+      const totalHoursPerDay = hours + minutes / 60;
+
+      // Calculs
+      const hoursPerYear = totalHoursPerDay * 365;
+      const daysPerYear = hoursPerYear / 24;
+      const monthsPerYear = daysPerYear / 30;
+
+      // Affichage résultats globaux
+      let html = `<p>Je passe environ <strong>${hoursPerYear.toFixed(0)}</strong> heures par an sur mon téléphone,</p>`;
+      html += `<p>soit <strong>${daysPerYear.toFixed(0)}</strong> jours, du matin au soir (en comptant 8h de sommeil).</p>`;
+      html += `<p>Je passe <strong>${monthsPerYear.toFixed(1)}</strong> mois de l'année sur mon téléphone.</p>`;
+
+      // Affichage tableau des alternatives
+      html += `<table>
+        <thead><tr><th>Action</th><th>Nombre</th><th>Description</th><th>Durée (h)</th></tr></thead><tbody>`;
+
+      data.forEach(item => {
+        // Calculer combien de fois on pourrait faire cette action dans le temps perdu
+        const nbActions = Math.floor(hoursPerYear / item.hours * item.count);
+        html += `<tr>
+          <td>${item.action}</td>
+          <td>${nbActions}</td>
+          <td>${item.description}</td>
+          <td>${item.hours}</td>
+        </tr>`;
+      });
+
+      html += `</tbody></table>`;
+
+      output.innerHTML = html;
+    });
+
+    // Calcul initial avec 1h par défaut
+    form.dispatchEvent(new Event('submit'));
+  </script>
+</body>
+</html>
