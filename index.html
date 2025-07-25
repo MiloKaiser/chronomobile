@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ce que mon téléphone me dérobe</title>
+  <title>Temps dérobé par mon téléphone</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -14,67 +14,55 @@
       color: #222;
       background-color: #fefefe;
     }
-    h1 {
-      text-align: center;
-      margin-bottom: 1rem;
-      color: #2c3e50;
-    }
-    label, input, button {
-      font-size: 1.1rem;
+    label {
+      font-size: 1.2rem;
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #333;
     }
     input[type="time"] {
       width: 120px;
-      padding: 0.3rem;
-      margin-left: 0.5rem;
+      padding: 0.4rem;
+      font-size: 1.1rem;
     }
     button {
-      margin-left: 1rem;
-      padding: 0.4rem 0.8rem;
+      display: block;
+      margin: 1.5rem auto 0;
+      padding: 0.6rem 1.5rem;
       cursor: pointer;
-      background-color: #2980b9;
+      background-color: #ffb800; /* orange fluo */
       border: none;
-      color: white;
-      border-radius: 4px;
+      color: #222;
+      font-weight: bold;
+      font-size: 1.2rem;
+      border-radius: 6px;
+      box-shadow: 0 0 10px #ffb800aa;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #ffa500;
     }
     .result {
       margin-top: 2rem;
-      background: #ecf0f1;
-      padding: 1rem;
-      border-radius: 6px;
-      font-size: 1rem;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-    }
-    th, td {
-      text-align: left;
-      padding: 6px 8px;
-      border-bottom: 1px solid #ccc;
-    }
-    th {
-      background-color: #3498db;
-      color: white;
+      white-space: pre-line;
+      font-size: 1.1rem;
+      color: #111;
     }
   </style>
 </head>
 <body>
-  <h1>Ce que mon téléphone me dérobe</h1>
-
-  <form id="form">
-    <label for="timeInput">Encodez la durée moyenne de temps passé sur votre téléphone par jour (H:MM) :</label>
-    <input type="time" id="timeInput" name="timeInput" step="60" value="01:00" required>
-    <button type="submit">Calculer</button>
+  <form id="form" aria-label="Calcul du temps passé sur téléphone">
+    <label for="timeInput">Durée moyenne passée sur votre téléphone par jour (HH:MM) :</label>
+    <input type="time" id="timeInput" name="timeInput" step="60" value="00:00" required />
+    <button type="submit">Voir ce que mon téléphone me dérobe</button>
   </form>
 
-  <div id="output" class="result" aria-live="polite"></div>
+  <div id="output" class="result" aria-live="polite" role="region"></div>
 
   <script>
     const form = document.getElementById('form');
     const output = document.getElementById('output');
 
-    // Données fixes issues de ton tableau
     const data = [
       { action: 'lire', count: 30, description: 'petits livres', hours: 12 },
       { action: 'lire', count: 12, description: 'gros romans', hours: 30 },
@@ -94,45 +82,49 @@
     form.addEventListener('submit', function(e) {
       e.preventDefault();
 
-      // Récupérer le temps en heures et minutes
-      const timeStr = document.getElementById('timeInput').value; // format HH:MM
+      const timeStr = document.getElementById('timeInput').value;
+      if (!timeStr || timeStr === "00:00") {
+        output.textContent = 'Veuillez entrer une durée supérieure à 00:00.';
+        return;
+      }
+
       const [hoursStr, minutesStr] = timeStr.split(':');
       const hours = parseInt(hoursStr, 10);
       const minutes = parseInt(minutesStr, 10);
       const totalHoursPerDay = hours + minutes / 60;
 
-      // Calculs
       const hoursPerYear = totalHoursPerDay * 365;
       const daysPerYear = hoursPerYear / 24;
       const monthsPerYear = daysPerYear / 30;
 
-      // Affichage résultats globaux
-      let html = `<p>Je passe environ <strong>${hoursPerYear.toFixed(0)}</strong> heures par an sur mon téléphone,</p>`;
-      html += `<p>soit <strong>${daysPerYear.toFixed(0)}</strong> jours, du matin au soir (en comptant 8h de sommeil).</p>`;
-      html += `<p>Je passe <strong>${monthsPerYear.toFixed(1)}</strong> mois de l'année sur mon téléphone.</p>`;
+      let text = `Je passe environ ${hoursPerYear.toFixed(0)} heures par an sur mon téléphone,\n`;
+      text += `soit ${daysPerYear.toFixed(0)} jours, du matin au soir (en comptant 8h de sommeil).\n`;
+      text += `Je passe ${monthsPerYear.toFixed(1)} mois de l'année sur mon téléphone.\n\n`;
 
-      // Affichage tableau des alternatives
-      html += `<table>
-        <thead><tr><th>Action</th><th>Nombre</th><th>Description</th><th>Durée (h)</th></tr></thead><tbody>`;
+      text += `À la place, je pourrais\n`;
 
-      data.forEach(item => {
-        // Calculer combien de fois on pourrait faire cette action dans le temps perdu
-        const nbActions = Math.floor(hoursPerYear / item.hours * item.count);
-        html += `<tr>
-          <td>${item.action}</td>
-          <td>${nbActions}</td>
-          <td>${item.description}</td>
-          <td>${item.hours}</td>
-        </tr>`;
+      data.slice(0,4).forEach(item => {
+        const nb = Math.floor(hoursPerYear / item.hours * item.count);
+        text += `${item.action} ${nb} ${item.description} (${formatDuration(item.hours)})\n`;
       });
 
-      html += `</tbody></table>`;
+      // Puis le reste en liste simple
+      data.slice(4).forEach(item => {
+        const nb = Math.floor(hoursPerYear / item.hours * item.count);
+        text += `${item.action} ${nb} ${item.description} (${formatDuration(item.hours)})\n`;
+      });
 
-      output.innerHTML = html;
+      output.textContent = text;
     });
 
-    // Calcul initial avec 1h par défaut
-    form.dispatchEvent(new Event('submit'));
+    function formatDuration(h) {
+      const totalMinutes = Math.round(h * 60);
+      const hh = Math.floor(totalMinutes / 60);
+      const mm = totalMinutes % 60;
+      if (hh > 0 && mm > 0) return `${hh}h${mm.toString().padStart(2,'0')}`;
+      if (hh > 0) return `${hh}h`;
+      return `${mm}min`;
+    }
   </script>
 </body>
 </html>
