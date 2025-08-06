@@ -1,108 +1,143 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Temps dérobé</title>
-<style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Regression by technology</title>
+  <style>
     body {
-  font-family: Arial, sans-serif;
-  max-width: 600px;
-  margin: 2em auto;
-  padding: 1em;
-  line-height: 1.5;
-  background-color: ##e0f7fa; 
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: 2em auto;
+      padding: 1em;
+      line-height: 1.5;
+      background-color: #f4f1e9; 
+    }
+
+    /* Centrage du bloc d’entrée */
+    .input-container {
+      text-align: center;
+      margin-bottom: 2em;
+    }
+
+    label {
+      font-size: 1.2em;
+      font-weight: bold;
+      display: block;
+      margin-bottom: 0.5em;
+    }
+
+    input[type="time"] {
+      font-size: 1.4em;
+      padding: 0.4em 0.6em;
+      width: 140px;
+    }
+
+    button {
+      margin-top: 1em;
+      background-color: #235b1e;
+      border: none;
+      color: white;
+      font-weight: bold;
+      font-size: 1.7em;
+      padding: 0.7em 1.2em;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background-color: #ee7fef;
+    }
+
+    #result {
+      white-space: pre-line;
+      margin-top: 2em;
+      text-align: left;
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Stardos+Stencil:wght@700&display=swap" rel="stylesheet">
+
+<style>
+button {
+  font-family: 'Stardos Stencil', cursive;
 }
-  }
-  input[type="time"] {
-    font-size: 1.2em;
-    padding: 0.3em;
-    width: 150px;
-  }
-  button {
-    margin-top: 1em;
-    background-color: #ff7f00;
-    border: none;
-    color: white;
-    font-weight: bold;
-    font-size: 1.1em;
-    padding: 0.7em 1em;
-    cursor: pointer;
-  }
-  button:hover {
-    background-color: #ff9500;
-  }
-  #result {
-    white-space: pre-line;
-    margin-top: 2em;
-  }
 </style>
+
+
 </head>
 <body>
 
-<label for="timeInput">Encodez la durée moyenne passée sur votre téléphone par jour</label><br />
-<input type="time" id="timeInput" value="00:00" step="60" /><br />
-<button id="calcBtn">voir ce que mon téléphone me dérobe</button>
+  <div class="input-container">
+    <label for="timeInput">Encodez la durée moyenne passée quotidiennement sur votre téléphone</label>
+    <input type="time" id="timeInput" value="00:00" step="60" /><br />
+    <button id="calcBtn">calculer</button>
+  </div>
 
-<div id="result"></div>
+  <div id="result"></div>
 
-<script>
-  const dureesActivites = {
-    petitsLivres: 12,
-    grosRomans: 30,
-    films: 2 + 20/60,
-    promenadesForet: 4,
-    seancesSport: 0.8, // 48 minutes = 0.8 heure
-    musees: 3,
-    scenarioCourt: 100,
-    instrumentsMusique: 200,
-    languesEtrangeres: 250,
-    etudesECTS: 25,
-    petitsProjets: 10
-  };
+  <script>
+    const dureesActivites = {
+      petitsLivres: 12,
+      grosRomans: 30,
+      films: 2 + 20/60,
+      promenadesForet: 3.5,
+      seancesSport: 0.8,
+      musees: 3,
+      scenarioCourt: 100,
+      scenarioLong: 450,
+      ecrirelivre: 400,
+      bandedessinee: 500,
+      instrumentsMusique: 200,
+      languesEtrangeres: 250,
+      etudesECTS: 25,
+      petitsProjets: 15
+      
+    };
 
-  function parseTimeToHours(timeStr) {
-    const [hours, minutes] = timeStr.split(":").map(Number);
-    return hours + minutes / 60;
-  }
+    function parseTimeToHours(timeStr) {
+      const [hours, minutes] = timeStr.split(":").map(Number);
+      return hours + minutes / 60;
+    }
 
-  document.getElementById("calcBtn").addEventListener("click", () => {
-    const timeStr = document.getElementById("timeInput").value;
-    const hoursPerDay = parseTimeToHours(timeStr);
-    const hoursPerYear = hoursPerDay * 365;
-    const daysLost = hoursPerYear / 16; // 16h éveillé par jour (24-8)
-    const monthsLost = daysLost / 30;
+    document.getElementById("calcBtn").addEventListener("click", () => {
+      const timeStr = document.getElementById("timeInput").value;
+      const hoursPerDay = parseTimeToHours(timeStr);
+      const hoursPerYear = hoursPerDay * 365;
+      const daysLost = hoursPerYear / 16;
+      const monthsLost = daysLost / 30;
 
-    // Début du texte avec parties en gras
-    let resultText =
+      let resultText =
 `<strong>Je passe environ ${hoursPerYear.toFixed(0)} heures par an sur mon téléphone</strong>,<br>
 soit <strong>${daysLost.toFixed(0)} jours, du matin au soir</strong> (en comptant 8h de sommeil).<br>
 Je passe donc <strong>${monthsLost.toFixed(1)} mois de l'année</strong> sur mon téléphone.<br><br>
-À la place, je pourrais...<br>`;
+Ce temps équivaut à...<br>`;
 
-    const activities = [
-      {label: "lire", count: Math.floor(hoursPerYear / dureesActivites.petitsLivres), text: "<strong>petits livres</strong> (12h),"},
-      {label: "lire", count: Math.floor(hoursPerYear / dureesActivites.grosRomans), text: "<strong>gros romans</strong> (30h),"},
-      {label: "regarder", count: Math.floor(hoursPerYear / dureesActivites.films), text: "<strong>films</strong> (2h20),"},
-      {label: "faire", count: Math.floor(hoursPerYear / dureesActivites.promenadesForet), text: "<strong>promenades en forêt</strong> (4h),"},
-      {label: "faire", count: Math.floor(hoursPerYear / dureesActivites.seancesSport), text: "<strong>séances de sport</strong> de 30 minutes, douche comprise (48min),"},
-      {label: "visiter", count: Math.floor(hoursPerYear / dureesActivites.musees), text: "<strong>musées</strong> (3h),"},
-      {label: "écrire le scénario de", count: Math.floor(hoursPerYear / dureesActivites.scenarioCourt), text: "<strong>court(s) métrage(s)</strong> (100h),"},
-      {label: "apprendre les bases de", count: Math.floor(hoursPerYear / dureesActivites.instrumentsMusique), text: "<strong>instrument(s) de musique </strong> (200h),"},
-      {label: "pouvoir comprendre les dialogues dans", count: Math.floor(hoursPerYear / dureesActivites.languesEtrangeres), text: "<strong>langue(s) étrangère(s)</strong> (250h),"},
-      {label: "étudier pour l'équivalent de", count: Math.floor(hoursPerYear / dureesActivites.etudesECTS), text: "<strong>crédits (ECTS) </strong> (25h)"},
-      {label: "ou encore réaliser", count: Math.floor(hoursPerYear / dureesActivites.petitsProjets), text: 'petits projets comme le présent site (10h).'}
-    ];
+      const activities = [
+        {label: "faire", count: Math.floor(hoursPerYear / dureesActivites.seancesSport), text: "<strong>séances de sport</strong> de 30 minutes, douche comprise (48min),"},
+        {label: "regarder", count: Math.floor(hoursPerYear / dureesActivites.films), text: "<strong>films</strong> (2h20),"},
+        {label: "visiter", count: Math.floor(hoursPerYear / dureesActivites.musees), text: "<strong>musées</strong> (3h),"},
+        {label: "faire", count: Math.floor(hoursPerYear / dureesActivites.promenadesForet), text: "<strong>longues promenades en forêt</strong> (3h30),"},
+        {label: "lire", count: Math.floor(hoursPerYear / dureesActivites.petitsLivres), text: "<strong>petits livres</strong> (12h)"},
+        {label: "ou bien", count: Math.floor(hoursPerYear / dureesActivites.grosRomans), text: "<strong>gros romans</strong> (30h),"},
+        {label: "écrire", count: Math.floor(hoursPerYear / dureesActivites.scenarioLong), text: "<strong>livre(s) </strong>(400h),"},
+        {label: "écrire le scénario de", count: Math.floor(hoursPerYear / dureesActivites.scenarioCourt), text: "<strong>court(s) métrage(s)</strong> (100h)"},
+        {label: "ou de", count: Math.floor(hoursPerYear / dureesActivites.scenarioLong), text: "<strong>long(s) métrage(s)</strong> (450h),"},
+        {label: "écrire et dessiner intégralement", count: Math.floor(hoursPerYear / dureesActivites.scenarioLong), text: "<strong>bande(s) dessinée(s)</strong> (500h),"},
+        {label: "apprendre les bases de", count: Math.floor(hoursPerYear / dureesActivites.instrumentsMusique), text: "<strong>instrument(s) de musique </strong> (200h),"},
+        {label: "pouvoir comprendre les dialogues dans", count: Math.floor(hoursPerYear / dureesActivites.languesEtrangeres), text: "<strong>langue(s) étrangère(s)</strong> (250h),"},
+        {label: "étudier pour l'équivalent de", count: Math.floor(hoursPerYear / dureesActivites.etudesECTS), text: "<strong>crédits (ECTS) </strong> (25h)"},
+        {label: "ou encore réaliser", count: Math.floor(hoursPerYear / dureesActivites.petitsProjets), text: 'petits projets comme le présent site (15h).'}
+      ];
 
-    activities.forEach(act => {
-      if (act.count >= 1) {
-        resultText += `${act.label} <strong>${act.count}</strong> ${act.text}<br>`;
-      }
+      activities.forEach(act => {
+        if (act.count >= 1) {
+          resultText += `${act.label} <strong>${act.count}</strong> ${act.text}<br>`;
+        }
+      });
+
+      document.getElementById("result").innerHTML = resultText;
     });
-
-    document.getElementById("result").innerHTML = resultText;
-  });
-</script>
+  </script>
 
 </body>
 </html>
