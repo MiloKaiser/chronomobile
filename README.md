@@ -1,2 +1,3 @@
 # regression by technology
-Combien de temps mon téléphone me dérobe-t-il ? 
+How much time do I spend on my phone ?
+LICAM / FP / Milo Kaiser 
